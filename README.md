@@ -44,16 +44,6 @@ El administrador sube un video → la API lo guarda → crea un VideoEncoding �
 
 ## Arquitectura opción 2
 
-                         GITHUB
-                           │
-                           ▼
-                    GitHub Actions
-                           │
-                           ▼
-                    Container Registry
-                           │
-                           ▼
-
                         OPENSTACK
                            │
                            ▼
