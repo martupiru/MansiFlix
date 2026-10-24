@@ -21,8 +21,10 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,7 +56,7 @@ var _ = Describe("VideoEncoding Controller", func() {
 						Name:      resourceName,
 						Namespace: resourceNamespace,
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: videov1.VideoEncodingSpec{Source: testSource, Resolutions: []int32{360, 720, 1080}},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
@@ -80,8 +82,15 @@ var _ = Describe("VideoEncoding Controller", func() {
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+			Expect(k8sClient.Get(ctx, typeNamespacedName, videoencoding)).To(Succeed())
+			var jobs batchv1.JobList
+			Expect(k8sClient.List(ctx, &jobs, client.InNamespace(resourceNamespace))).To(Succeed())
+			Expect(jobs.Items).To(HaveLen(3))
+			Expect(videoencoding.Status.Phase).To(Equal(videov1.PhasePending))
+			Expect(videoencoding.Status.Resolutions).To(HaveLen(3))
+			for _, job := range jobs.Items {
+				Expect(metav1.IsControlledBy(&job, videoencoding)).To(BeTrue())
+			}
 		})
 	})
 })

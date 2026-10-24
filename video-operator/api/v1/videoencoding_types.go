@@ -26,13 +26,35 @@ import (
 
 // VideoEncodingSpec defines the desired state of VideoEncoding
 type VideoEncodingSpec struct {
-	Source     string `json:"source"`
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinLength=1
+	Source string `json:"source"`
+
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:MinItems=1
+	// +kubebuilder:validation:items:Enum=360;720;1080
+	Resolutions []int32 `json:"resolutions"`
+}
+
+// Phases shared by the encoding and each resolution.
+const (
+	PhasePending    = "Pending"
+	PhaseProcessing = "Processing"
+	PhaseCompleted  = "Completed"
+	PhaseFailed     = "Failed"
+)
+
+// ResolutionStatus records the observed state of a child Job.
+type ResolutionStatus struct {
 	Resolution int32  `json:"resolution"`
+	Phase      string `json:"phase"`
+	JobName    string `json:"jobName,omitempty"`
 }
 
 // VideoEncodingStatus defines the observed state of VideoEncoding.
 type VideoEncodingStatus struct {
-	Phase string `json:"phase,omitempty"`
+	Phase       string             `json:"phase,omitempty"`
+	Resolutions []ResolutionStatus `json:"resolutions,omitempty"`
 }
 
 // +kubebuilder:object:root=true

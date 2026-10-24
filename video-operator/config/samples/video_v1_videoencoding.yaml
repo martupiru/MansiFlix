@@ -1,9 +1,12 @@
 apiVersion: video.mansiflix.local/v1
 kind: VideoEncoding
 metadata:
-  name: matrix-720
+  name: matrix
   namespace: mansiflix
 
 spec:
   source: matrix.mp4
-  resolution: 720
+  resolutions:
+    - 360
+    - 720
+    - 1080

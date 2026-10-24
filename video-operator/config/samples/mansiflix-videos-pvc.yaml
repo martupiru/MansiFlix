@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mansiflix-videos
+  namespace: mansiflix
+spec:
+  # All three Jobs read the same original and write separate output directories.
+  # RWX is ideal; the default StorageClass must actually support it.
+  # With RWO, review scheduling/storage before running concurrent Jobs.
+  # No StorageClass is assumed here.
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi

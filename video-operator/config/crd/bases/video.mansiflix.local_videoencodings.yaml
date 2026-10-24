@@ -39,13 +39,21 @@ spec:
           spec:
             description: spec defines the desired state of VideoEncoding
             properties:
-              resolution:
-                format: int32
-                type: integer
+              resolutions:
+                items:
+                  enum:
+                  - 360
+                  - 720
+                  - 1080
+                  format: int32
+                  type: integer
+                minItems: 1
+                type: array
               source:
+                minLength: 1
                 type: string
             required:
-            - resolution
+            - resolutions
             - source
             type: object
           status:
@@ -53,6 +61,23 @@ spec:
             properties:
               phase:
                 type: string
+              resolutions:
+                items:
+                  description: ResolutionStatus records the observed state of a child
+                    Job.
+                  properties:
+                    jobName:
+                      type: string
+                    phase:
+                      type: string
+                    resolution:
+                      format: int32
+                      type: integer
+                  required:
+                  - phase
+                  - resolution
+                  type: object
+                type: array
             type: object
         required:
         - spec
