@@ -1,9 +1,9 @@
 # MansiFlix 
 
-## Arquitectura
-                  
+## 1. Arquitectura General
 
-                         OPENSTACK
+```text
+             OPENSTACK
                             │
              ┌──────────────┴──────────────┐
              │                             │
@@ -37,10 +37,18 @@
                            Cliente reproduce
                             HLS (.m3u8)
                           + segmentos (.ts)
+```
 
+**Notas aclaratorias:**
+* **Ingreso de Tráfico:** Todo el tráfico externo pasa a través de Gateway API (implementado con Envoy Gateway), balanceado desde OpenStack.
+* **Almacenamiento Persistente:** MinIO opera sobre volúmenes aprovisionados dinámicamente mediante Cinder CSI.
+* **Reproducción:** El *Video Service* sirve como intermediario para que el cliente pueda consumir los archivos HLS directamente desde el bucket de MinIO.
 
-                   FLUJO DE PROCESAMIENTO
+---
 
+## 2. Flujo de Procesamiento
+
+```text
        API Go / solicitud de procesamiento
                        │
                        ▼
@@ -61,7 +69,7 @@
              │         │         │
              └─────────┼─────────┘
                        │
-            1. Descarga original por S3
+             1. Descarga original por S3
                        │
                        ▼
                Procesamiento local
@@ -90,7 +98,15 @@
                                   │
                                   ▼
                                 Cliente
+```
 
+**Notas aclaratorias:**
+* **Orquestación (Patrón Operator):** Un Custom Resource (`VideoEncoding`) dispara el Operator escrito en Go, encargándose de lanzar trabajos de codificación nativos en Kubernetes (`Jobs`).
+* **Concurrencia:** Los workers procesan las distintas resoluciones (360p, 720p, 1080p) en paralelo utilizando FFmpeg.
+* **Output HLS:** Cada worker descarga el video original, lo transcodifica a formato HLS y sube el manifiesto (`.m3u8`) junto con los fragmentos de video (`.ts`) a rutas específicas dentro del bucket `encoded`.
 
-                   OBSERVABILIDAD
-                Prometheus + Grafana
+---
+
+## 3. Observabilidad
+
+* **Stack utilizado:** Prometheus + Grafana para el monitoreo de métricas, consumo de recursos del clúster y tiempos de procesamiento de los workers.
