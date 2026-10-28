@@ -1,0 +1,9 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {"Effect":"Allow","Action":["s3:GetBucketLocation"],"Resource":["arn:aws:s3:::mansiflix-originals","arn:aws:s3:::mansiflix-encoded"]},
+    {"Effect":"Allow","Action":["s3:ListBucket"],"Resource":["arn:aws:s3:::mansiflix-originals"],"Condition":{"StringLike":{"s3:prefix":["video-lab/*"]}}},
+    {"Effect":"Allow","Action":["s3:ListBucket"],"Resource":["arn:aws:s3:::mansiflix-encoded"],"Condition":{"StringLike":{"s3:prefix":["runs/video-lab/*"]}}},
+    {"Effect":"Allow","Action":["s3:GetObject","s3:PutObject","s3:AbortMultipartUpload"],"Resource":["arn:aws:s3:::mansiflix-originals/video-lab/*","arn:aws:s3:::mansiflix-encoded/runs/video-lab/*"]}
+  ]
+}

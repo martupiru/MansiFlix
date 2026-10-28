@@ -1,0 +1,84 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: mansiflix-minio-smoke-
+  namespace: mansiflix
+  labels:
+    app.kubernetes.io/part-of: mansiflix
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: mansiflix
+        app.kubernetes.io/component: minio-smoke-test
+        mansiflix.local/minio-access: "true"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: smoke-test
+          image: mansiflix/minio-mc:source-7394ce0dd2a8-amd64-r2
+          imagePullPolicy: Never
+          command: [/bin/sh, /opt/minio/smoke-test.sh]
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mansiflix-minio-admin
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mansiflix-minio-admin
+                  key: MINIO_ROOT_PASSWORD
+            - name: WORKER_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mansiflix-minio-worker
+                  key: access-key
+            - name: WORKER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mansiflix-minio-worker
+                  key: secret-key
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+              ephemeral-storage: 64Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tools
+              mountPath: /opt/minio
+              readOnly: true
+            - name: temp
+              mountPath: /tmp
+      volumes:
+        - name: tools
+          configMap:
+            name: mansiflix-minio-tools
+            defaultMode: 0444
+        - name: temp
+          emptyDir:
+            sizeLimit: 64Mi

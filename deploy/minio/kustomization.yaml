@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mansiflix
+resources:
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - network-policy.yaml
+configMapGenerator:
+  - name: mansiflix-minio-tools
+    files:
+      - common.sh=scripts/common.sh
+      - bootstrap.sh=scripts/bootstrap.sh
+      - smoke-test.sh=scripts/smoke-test.sh
+      - worker-transfer.sh=scripts/worker-transfer.sh
+      - seed-demo.sh=scripts/seed-demo.sh
+      - verify-demo.sh=scripts/verify-demo.sh
+      - worker.json=policies/worker.json
+generatorOptions:
+  # Separately reviewed, one-shot Jobs reference this stable ConfigMap name.
+  disableNameSuffixHash: true
+  labels:
+    app.kubernetes.io/part-of: mansiflix
+    app.kubernetes.io/component: object-storage-tools

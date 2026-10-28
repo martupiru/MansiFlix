@@ -1,0 +1,35 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "LocateKnownBuckets",
+      "Effect": "Allow",
+      "Action": ["s3:GetBucketLocation"],
+      "Resource": ["arn:aws:s3:::mansiflix-originals", "arn:aws:s3:::mansiflix-encoded"]
+    },
+    {
+      "Sid": "ReadKnownOriginalObjects",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": ["arn:aws:s3:::mansiflix-originals/*"]
+    },
+    {
+      "Sid": "ReadSyntheticRoundTripChecks",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject"],
+      "Resource": ["arn:aws:s3:::mansiflix-encoded/runs/_checks/*"]
+    },
+    {
+      "Sid": "WriteResultsAndAbortIncompleteUploads",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:AbortMultipartUpload"],
+      "Resource": ["arn:aws:s3:::mansiflix-encoded/runs/*"]
+    },
+    {
+      "Sid": "NeverModifyOriginals",
+      "Effect": "Deny",
+      "Action": ["s3:PutObject", "s3:DeleteObject", "s3:DeleteObjectVersion"],
+      "Resource": ["arn:aws:s3:::mansiflix-originals/*"]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: mansiflix-minio-network-
+  namespace: mansiflix
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: mansiflix
+        mansiflix.local/minio-access: "true"
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: network
+          image: mansiflix/minio-mc:source-7394ce0dd2a8-amd64-r2
+          imagePullPolicy: Never
+          command: [/bin/sh, -ec]
+          args:
+            - |
+              timeout 8 nslookup minio.mansiflix.svc.cluster.local >/tmp/dns 2>&1 || { printf 'FAIL: DNS\n'; exit 1; }
+              if wget -S -T 4 -t 1 -O /tmp/body http://minio:9000/minio/health/ready 2>/tmp/status; then
+                [ "$EXPECT_ACCESS" = true ] || { printf 'FAIL: unexpected network access\n'; exit 1; }
+                printf 'PASS network: DNS and internal HTTP health endpoint accessible\n'
+              else
+                [ "$EXPECT_ACCESS" = false ] || { printf 'FAIL: authorized connection failed\n'; exit 1; }
+                grep -qi 'timed out' /tmp/status || { printf 'FAIL: failure was not a network timeout\n'; exit 1; }
+                printf 'PASS network: DNS resolves, TCP/HTTP request times out without both labels\n'
+              fi
+          env:
+            - name: EXPECT_ACCESS
+              value: "true"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+              ephemeral-storage: 64Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+              ephemeral-storage: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: temp
+              mountPath: /tmp
+      volumes:
+        - name: temp
+          emptyDir:
+            sizeLimit: 64Mi

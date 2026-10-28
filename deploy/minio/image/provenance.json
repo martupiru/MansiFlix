@@ -1,0 +1,46 @@
+{
+  "status": "built-version-verified-imported-worker-nodes-not-yet-runtime-verified",
+  "reviewDate": "2026-10-27",
+  "platform": "linux/amd64",
+  "purpose": "isolated internal laboratory, not a maintained production recommendation",
+  "server": {
+    "repository": "https://github.com/minio/minio",
+    "release": "RELEASE.2025-10-15T17-29-55Z",
+    "commit": "9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a",
+    "source": "https://github.com/minio/minio/releases/tag/RELEASE.2025-10-15T17-29-55Z",
+    "imageToBuild": "mansiflix/minio:source-9e49d5e7a648-amd64-r1",
+    "imageDigest": "sha256:64deda952a6e27ad5ba649f5ce643c398fb28cdfb4a138a97eabb048b2ac7fc3",
+    "upstreamMaintenance": "archived; community source-only distribution"
+  },
+  "client": {
+    "repository": "https://github.com/minio/mc",
+    "release": "RELEASE.2025-08-13T08-35-41Z",
+    "commit": "7394ce0dd2a80935aded936b09fa12cbb3cb8096",
+    "source": "https://github.com/minio/mc/releases/tag/RELEASE.2025-08-13T08-35-41Z",
+    "imageToBuild": "mansiflix/minio-mc:source-7394ce0dd2a8-amd64-r1",
+    "imageDigest": "sha256:8596f69b617c0d50a9bfa1446b544019c187c272b48ba0a31bb16a784629a81f",
+    "upstreamMaintenance": "archived; no ongoing maintenance assumed"
+  },
+  "buildBase": "golang:1.26@sha256:672c944cfd07599b5f1bb179869270cdc94c6254e41db4d431259693cb286b82",
+  "runtimeBase": "alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f",
+  "baseDigestEvidence": "digests resolved in the project's successful worker Docker build on 2026-10-24; no new pull performed in this preparation",
+  "pending": [
+    "runtime and real S3 authorization tests",
+    "NetworkPolicy enforcement and persistence test",
+    "security remediation or maintained product evaluation before any non-synthetic use"
+  ],
+  "verification": {
+    "buildDate": "2026-10-27",
+    "versionsAndCommits": "executed --version in both built linux/amd64 images; exact expected values",
+    "scanner": "Docker Scout 1.27.0; critical/high package findings, not an exploitability assessment",
+    "serverFindings": {
+      "critical": 15,
+      "high": 39
+    },
+    "clientFindings": {
+      "critical": 10,
+      "high": 21
+    },
+    "unresolved": "Known vulnerabilities remain, including upstream S3 authentication advisories. Synthetic academic demonstration only; no production security claim."
+  }
+}

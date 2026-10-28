@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mansiflix-minio-data
+  labels:
+    app.kubernetes.io/part-of: mansiflix
+    app.kubernetes.io/name: minio
+spec:
+  storageClassName: csi-cinder-sc-retain
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 20Gi
