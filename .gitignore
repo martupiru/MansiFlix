@@ -18,6 +18,7 @@ Desktop.ini
 # Local Markdown guides and agent notes; keep project READMEs
 *.md
 !README.md
+/docs/DEFENSA_MANSIFLIX.md
 /video-operator/docs/cluster-test-checklist.md
 
 # Local agent state and cloud/SSH credentials
